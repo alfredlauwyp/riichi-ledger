@@ -161,6 +161,7 @@ export default function MahjongTracker() {
   };
 
   const deleteGame = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this game?')) return;
     setIsSyncing(true);
     const { error } = await supabase.from('games').delete().eq('id', id);
     if (!error) setGames(games.filter(g => g.id !== id));
@@ -175,6 +176,16 @@ export default function MahjongTracker() {
     const a = document.createElement('a');
     a.href = url;
     a.download = `riichi-ledger-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+  };
+
+  const exportHistoryToJSON = () => {
+    const data = { games, exportDate: new Date().toISOString() };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `game-history-${new Date().toISOString().split('T')[0]}.json`;
     a.click();
   };
 
@@ -211,7 +222,6 @@ export default function MahjongTracker() {
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">Riichi Ledger <span className="text-2xl">[槓 for Flow]</span></h1>
             </div>
-            <p className="text-purple-100 text-sm mt-2">Database Connected • Live Data Persistence</p>
           </div>
 
           {/* Tabs Navigation */}
@@ -332,19 +342,32 @@ export default function MahjongTracker() {
 
             {/* History Tab */}
             {activeTab === 'history' && (
-              <div className="space-y-4">
-                {games.map(game => (
-                  <div key={game.id} className="border p-4 rounded-lg relative">
-                    <button onClick={() => deleteGame(game.id)} className="absolute top-4 right-4 text-red-400"><Trash2 size={16}/></button>
-                    <div className="text-xs text-gray-500 mb-2">{new Date(game.date).toLocaleString()}</div>
-                    {game.results.sort((a,b) => a.position - b.position).map((r, i) => (
-                      <div key={i} className="flex justify-between text-sm">
-                        <span>{r.position}. {r.player?.name}</span>
-                        <span className={r.money >= 0 ? 'text-green-600' : 'text-red-600'}>${r.money.toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-                ))}
+              <div>
+                <button
+                  onClick={exportHistoryToJSON}
+                  className="mb-6 flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 font-medium"
+                >
+                  <Download size={18} />
+                  JSON
+                </button>
+                <div className="space-y-4">
+                  {games.map(game => (
+                    <div key={game.id} className="border p-4 rounded-lg relative">
+                      <button onClick={() => deleteGame(game.id)} className="absolute top-4 right-4 text-red-400"><Trash2 size={16}/></button>
+                      <div className="text-xs text-gray-500 mb-2">{new Date(game.date).toLocaleString()}</div>
+                      {game.results.sort((a,b) => a.position - b.position).map((r, i) => (
+                        <div key={i} className="flex justify-between items-center text-sm py-1 gap-4">
+                          <span className="w-6">{r.position}.</span>
+                          <div className="flex-1 flex items-center gap-2">
+                            <span>{r.player?.name}</span>
+                            <span className="text-gray-600 font-semibold">({r.score})</span>
+                          </div>
+                          <span className={`w-16 text-right font-semibold ${r.money >= 0 ? 'text-green-600' : 'text-red-600'}`}>{r.money >= 0 ? '$' : '-$'}{Math.abs(r.money).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
             
