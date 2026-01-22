@@ -155,7 +155,6 @@ export default function MahjongTracker() {
       setGames([data[0], ...games]);
       setScores(['', '', '', '']);
       setSelectedPlayers([null, null, null, null]);
-      setActiveTab('history');
     }
     setIsSyncing(false);
   };
