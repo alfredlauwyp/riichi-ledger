@@ -29,7 +29,7 @@ export default function MahjongTracker() {
   
   const presets = {
     tenpin: { uma: { first: 30, second: 10, third: -10, fourth: -30 }, pointValue: 1 },
-    tengo: { uma: { first: 15, second: 5, third: -5, fourth: -15 }, pointValue: 0.5 },
+    tengo: { uma: { first: 30, second: 10, third: -10, fourth: -30 }, pointValue: 0.5 },
     custom: { uma: { first: 0, second: 0, third: 0, fourth: 0 }, pointValue: 0 }
   };
 
